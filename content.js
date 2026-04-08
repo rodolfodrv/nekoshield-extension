@@ -30,6 +30,9 @@ function showWarning(element, verdict) {
 
 async function scanLinks() {
   var links = extractLinks();
+  async function scanLinks() {
+  var links = extractLinks();
+  console.log('NekoShield found ' + links.length + ' links to scan');
   
   for (var i = 0; i < links.length; i++) {
     var link = links[i];
