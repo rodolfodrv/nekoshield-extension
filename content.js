@@ -19,7 +19,6 @@ function showWarning(element, verdict) {
     element.style.borderRadius = '4px';
     element.style.padding = '2px';
     element.setAttribute('title', '🚨 NekoShield: HIGH RISK — This link may be dangerous');
-    element.style.position = 'relative';
   } else if (verdict === 'suspicious') {
     element.style.border = '2px solid #ffd600';
     element.style.borderRadius = '4px';
@@ -30,24 +29,20 @@ function showWarning(element, verdict) {
 
 async function scanLinks() {
   var links = extractLinks();
-  async function scanLinks() {
-  var links = extractLinks();
   console.log('NekoShield found ' + links.length + ' links to scan');
-  
+
   for (var i = 0; i < links.length; i++) {
     var link = links[i];
-    
     try {
       var response = await chrome.runtime.sendMessage({
         action: 'analyzeUrl',
         url: link.url
       });
-      
       if (response && response.result) {
         var verdict = response.result.verdict;
+        console.log('NekoShield scanned: ' + link.url + ' — ' + verdict);
         if (verdict === 'dangerous' || verdict === 'suspicious') {
           showWarning(link.element, verdict);
-          
           if (verdict === 'dangerous') {
             chrome.runtime.sendMessage({
               action: 'notify',
@@ -57,8 +52,9 @@ async function scanLinks() {
           }
         }
       }
-    } catch(e) {}
-    
+    } catch(e) {
+      console.log('NekoShield error: ' + e.message);
+    }
     await new Promise(r => setTimeout(r, 500));
   }
 }
