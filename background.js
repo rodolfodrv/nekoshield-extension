@@ -12,7 +12,7 @@ async function analyzeUrl(url) {
     
     if (cache[url]) return cache[url];
 
-    var response = await fetch(API_URL + '/analyze', {
+    var response = await fetch(API_URL + '/extension-analyze', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ url: url })
