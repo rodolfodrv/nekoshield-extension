@@ -36,4 +36,12 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     });
     return true;
   }
+  if (request.action === 'notify') {
+    chrome.notifications.create({
+      type: 'basic',
+      iconUrl: 'icon128.png',
+      title: request.title,
+      message: request.message
+    });
+  }
 });
