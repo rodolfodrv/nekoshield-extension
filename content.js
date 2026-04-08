@@ -1,4 +1,5 @@
 const NEKOSHIELD_API = 'https://nekoshield-server.onrender.com';
+console.log('NekoShield content.js loaded');
 
 function extractLinks() {
   var links = document.querySelectorAll('a[href]');
