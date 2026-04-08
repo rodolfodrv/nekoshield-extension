@@ -14,12 +14,25 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
         if (!result) return;
         updateCounters(result.verdict);
         if (result.verdict === 'dangerous' || result.verdict === 'suspicious') {
-          chrome.notifications.create({
-            type: 'basic',
-            iconUrl: 'icon128.png',
-            title: result.verdict === 'dangerous' ? '🚨 NekoShield: HIGH RISK' : '⚠️ NekoShield: SUSPICIOUS',
-            message: 'This page may be dangerous!'
-          });
+          chrome.notifications.create(
+            'nekoshield-' + Date.now(),
+            {
+              type: 'basic',
+              iconUrl: 'icon128.png',
+              title: result.verdict === 'dangerous' ? '🚨 HIGH RISK PAGE' : '⚠️ SUSPICIOUS PAGE',
+              message: result.verdict === 'dangerous' ? 'This page is dangerous! Do not proceed.' : 'This page looks suspicious. Proceed with caution.'
+            }
+          );
+        } else {
+          chrome.notifications.create(
+            'nekoshield-' + Date.now(),
+            {
+              type: 'basic',
+              iconUrl: 'icon128.png',
+              title: '✅ NekoShield: Page is Safe',
+              message: 'No threats detected on this page.'
+            }
+          );
         }
       });
     });
