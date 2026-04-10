@@ -117,7 +117,11 @@ async function scanLinks() {
   }
 }
 
-scanCurrentPage();
+chrome.runtime.sendMessage({ action: 'getUser' }, function(response) {
+  if (response && response.email) {
+    scanCurrentPage();
+  }
+});
 
 var observer = new MutationObserver(function(mutations) {
   mutations.forEach(function(mutation) {
