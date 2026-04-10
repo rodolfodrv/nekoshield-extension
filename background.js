@@ -9,6 +9,7 @@ chrome.runtime.onInstalled.addListener(function() {
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
   if (changeInfo.status === 'complete' && tab.url && tab.url.startsWith('http')) {
     chrome.storage.local.get('userEmail', function(data) {
+      if (!data.userEmail) return;
       var email = data.userEmail || null;
       analyzeUrl(tab.url, email).then(function(result) {
         if (!result) return;
