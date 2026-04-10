@@ -1,5 +1,23 @@
 var API_URL = 'https://nekoshield-server.onrender.com';
+var isLoginMode = true;
 
+document.getElementById('tabLogin').addEventListener('click', function() {
+  isLoginMode = true;
+  document.getElementById('tabLogin').style.background = '#00e5ff';
+  document.getElementById('tabLogin').style.color = '#080b14';
+  document.getElementById('tabRegister').style.background = 'transparent';
+  document.getElementById('tabRegister').style.color = '#00e5ff';
+  document.getElementById('loginBtn').textContent = 'Sign In 🛡️';
+});
+
+document.getElementById('tabRegister').addEventListener('click', function() {
+  isLoginMode = false;
+  document.getElementById('tabRegister').style.background = '#00e5ff';
+  document.getElementById('tabRegister').style.color = '#080b14';
+  document.getElementById('tabLogin').style.background = 'transparent';
+  document.getElementById('tabLogin').style.color = '#00e5ff';
+  document.getElementById('loginBtn').textContent = 'Register Free 🛡️';
+});
 function showMsg(msg, color) {
   var el = document.getElementById('loginMsg');
   el.textContent = msg;
@@ -37,17 +55,27 @@ document.getElementById('loginBtn').addEventListener('click', async function() {
   }
   showMsg('Connecting...', '#6b7280');
   try {
-    var response = await fetch(API_URL + '/register', {
+    var endpoint = isLoginMode ? '/tokens' : '/register';
+    var response = await fetch(API_URL + endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: email })
     });
     var data = await response.json();
-    if (data.success) {
-      chrome.runtime.sendMessage({ action: 'setUser', email: email });
-      showDashboard(email);
+    if (isLoginMode) {
+      if (data.tokens !== undefined) {
+        chrome.runtime.sendMessage({ action: 'setUser', email: email });
+        showDashboard(email);
+      } else {
+        showMsg('Email not found. Please register first.', '#ff2d78');
+      }
     } else {
-      showMsg(data.error || 'Something went wrong.', '#ff2d78');
+      if (data.success) {
+        chrome.runtime.sendMessage({ action: 'setUser', email: email });
+        showDashboard(email);
+      } else {
+        showMsg(data.error || 'Something went wrong.', '#ff2d78');
+      }
     }
   } catch(e) {
     showMsg('Connection error. Please try again.', '#ff2d78');
