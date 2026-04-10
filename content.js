@@ -77,12 +77,17 @@ function showLinkWarning(element, verdict) {
 
 async function scanCurrentPage() {
   var currentUrl = window.location.href;
+  var shownKey = 'neko_shown_' + btoa(currentUrl).substring(0, 20);
+  
+  if (sessionStorage.getItem(shownKey)) return;
+  
   try {
     var response = await chrome.runtime.sendMessage({
       action: 'analyzeUrl',
       url: currentUrl
     });
     if (response && response.result) {
+      sessionStorage.setItem(shownKey, '1');
       createNekoBar(response.result.verdict, response.result.score || 0);
     }
   } catch(e) {
