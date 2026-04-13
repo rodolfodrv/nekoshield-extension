@@ -29,11 +29,11 @@ function showDashboard(email) {
   document.getElementById('dashboard').style.display = 'block';
   document.getElementById('logoutBtn').style.display = 'block';
   document.getElementById('userEmailDisplay').textContent = email;
-  chrome.storage.local.get(['scanned', 'threats'], function(data) {
+  chrome.storage.local.get(['scanned', 'threats', 'linksScanned'], function(data) {
     document.getElementById('scannedCount').textContent = data.scanned || 0;
     document.getElementById('threatsCount').textContent = data.threats || 0;
+    document.getElementById('linksCount').textContent = data.linksScanned || 0;
   });
-}
 
 function showLogin() {
   document.getElementById('loginSection').style.display = 'block';
