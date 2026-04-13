@@ -1,3 +1,4 @@
+document.addEventListener('DOMContentLoaded', function() {
 var API_URL = 'https://nekoshield-server.onrender.com';
 var isLoginMode = true;
 
@@ -85,4 +86,5 @@ document.getElementById('loginBtn').addEventListener('click', async function() {
 document.getElementById('logoutBtn').addEventListener('click', function() {
   chrome.runtime.sendMessage({ action: 'logout' });
   showLogin();
+});
 });
