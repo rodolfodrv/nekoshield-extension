@@ -63,12 +63,18 @@ async function analyzeUrl(url, email) {
   }
 }
 
-function updateCounters(verdict) {
-  chrome.storage.local.get(['scanned', 'threats'], function(data) {
-    var scanned = (data.scanned || 0) + 1;
+function updateCounters(verdict, isLink) {
+  chrome.storage.local.get(['scanned', 'threats', 'linksScanned'], function(data) {
+    var scanned = data.scanned || 0;
     var threats = data.threats || 0;
+    var linksScanned = data.linksScanned || 0;
+    if (isLink) {
+      linksScanned++;
+    } else {
+      scanned++;
+    }
     if (verdict === 'dangerous' || verdict === 'suspicious') threats++;
-    chrome.storage.local.set({ scanned: scanned, threats: threats });
+    chrome.storage.local.set({ scanned: scanned, threats: threats, linksScanned: linksScanned });
   });
 }
 
