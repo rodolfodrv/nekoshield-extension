@@ -41,6 +41,8 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 });
 
 var urlCache = {};
+var urlCacheOrder = [];
+var MAX_CACHE = 50;
 
 async function analyzeUrl(url, email) {
   try {
@@ -57,6 +59,11 @@ async function analyzeUrl(url, email) {
 
     var data = await response.json();
     urlCache[url] = data;
+    urlCacheOrder.push(url);
+    if (urlCacheOrder.length > MAX_CACHE) {
+      var oldest = urlCacheOrder.shift();
+      delete urlCache[oldest];
+    }
     return data;
   } catch(e) {
     return null;
