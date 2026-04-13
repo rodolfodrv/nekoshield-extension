@@ -35,7 +35,7 @@ function showDashboard(email) {
     document.getElementById('threatsCount').textContent = data.threats || 0;
     document.getElementById('linksCount').textContent = data.linksScanned || 0;
   });
-
+}
 function showLogin() {
   document.getElementById('loginSection').style.display = 'block';
   document.getElementById('dashboard').style.display = 'none';
