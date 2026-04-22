@@ -1,5 +1,11 @@
 document.addEventListener('DOMContentLoaded', function() {
   var API_URL = 'https://nekoshield-server.onrender.com';
+  var nekoAvatar = document.getElementById('nekoAvatar');
+  if (nekoAvatar) {
+    nekoAvatar.onerror = function() {
+      this.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🛡️</text></svg>';
+    };
+  }
   var isLoginMode = true;
 
   // ── TABS ──────────────────────────────────────────────────────────────────
