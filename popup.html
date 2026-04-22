@@ -5,38 +5,81 @@
 <title>NekoShield</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { width: 320px; background: #080b14; color: #e8eaf6; font-family: sans-serif; }
-  .header { background: #0d1224; border-bottom: 1px solid rgba(255,255,255,0.07); padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; }
-  .logo { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.5px; }
+  body { width: 320px; background: #080b14; color: #e8eaf6; font-family: sans-serif; overflow: hidden; }
+
+  .header { background: #0d1224; border-bottom: 1px solid rgba(255,255,255,0.07); padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; }
+  .logo { font-size: 1.05rem; font-weight: 800; letter-spacing: -0.5px; }
   .logo span { color: #00e5ff; }
   .logout-btn { font-size: 0.72rem; color: #6b7280; cursor: pointer; background: none; border: none; }
   .logout-btn:hover { color: #ff2d78; }
 
   /* LOGIN */
-  .login-section { padding: 24px 20px; }
-  .login-title { font-size: 0.9rem; font-weight: 700; margin-bottom: 6px; }
-  .login-sub { font-size: 0.78rem; color: #6b7280; margin-bottom: 16px; line-height: 1.5; }
+  .login-section { padding: 22px 20px; }
+  .login-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 6px; }
+  .login-sub { font-size: 0.78rem; color: #6b7280; margin-bottom: 16px; line-height: 1.6; }
+  .tabs-row { display: flex; gap: 8px; margin-bottom: 14px; }
+  .tab-btn { flex: 1; padding: 8px; border-radius: 7px; border: 1px solid rgba(0,229,255,0.4); background: transparent; color: #00e5ff; font-weight: 700; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; }
+  .tab-btn.active { background: #00e5ff; color: #080b14; border-color: #00e5ff; }
   .input-field { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px 12px; color: #e8eaf6; font-size: 0.85rem; outline: none; margin-bottom: 10px; }
   .input-field:focus { border-color: rgba(0,229,255,0.4); }
   .login-btn { width: 100%; padding: 11px; background: linear-gradient(135deg, #00e5ff, #0099bb); color: #080b14; border: none; border-radius: 8px; font-weight: 700; font-size: 0.88rem; cursor: pointer; }
   .login-btn:hover { opacity: 0.9; }
   .login-msg { font-size: 0.78rem; text-align: center; margin-top: 10px; min-height: 18px; }
 
+  /* WELCOME CARD */
+  .welcome-card { display: none; padding: 20px; text-align: center; }
+  .neko-wrap { position: relative; display: inline-block; margin-bottom: 14px; }
+  .neko-avatar { width: 76px; height: 76px; border-radius: 50%; object-fit: cover; border: 2px solid #00e5ff; box-shadow: 0 0 20px rgba(0,229,255,0.4); animation: nekoWave 0.6s ease-in-out 4; }
+  @keyframes nekoWave {
+    0%   { transform: rotate(0deg) scale(1); }
+    25%  { transform: rotate(-10deg) scale(1.1); }
+    50%  { transform: rotate(10deg) scale(1.1); }
+    75%  { transform: rotate(-6deg) scale(1.05); }
+    100% { transform: rotate(0deg) scale(1); }
+  }
+  .neko-ring { position: absolute; inset: -6px; border-radius: 50%; border: 2px solid rgba(0,229,255,0.2); animation: spin 6s linear infinite; }
+  .neko-ring::before { content:''; position:absolute; width:8px; height:8px; background:#00e5ff; border-radius:50%; top:-4px; left:50%; box-shadow: 0 0 6px #00e5ff; }
+  @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+
+  .welcome-title { font-size: 1.05rem; font-weight: 800; margin-bottom: 4px; letter-spacing: -0.3px; }
+  .welcome-title span { color: #00e5ff; }
+  .welcome-active { display: inline-flex; align-items: center; gap: 6px; background: rgba(0,255,136,0.08); border: 1px solid rgba(0,255,136,0.2); border-radius: 100px; padding: 4px 12px; font-size: 0.72rem; color: #00ff88; font-weight: 600; margin: 8px 0 14px; }
+  .active-dot { width: 6px; height: 6px; border-radius: 50%; background: #00ff88; animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  .offer-box { background: linear-gradient(135deg, rgba(0,229,255,0.07), rgba(255,45,120,0.05)); border: 1px solid rgba(0,229,255,0.25); border-radius: 12px; padding: 16px; margin-bottom: 14px; text-align: left; }
+  .offer-copy { font-size: 0.8rem; color: #9ca3af; line-height: 1.6; margin-bottom: 14px; }
+  .offer-copy strong { color: #e8eaf6; }
+  .offer-price-row { display: flex; align-items: center; justify-content: space-between; }
+  .offer-price { font-size: 2.2rem; font-weight: 800; color: #00e5ff; letter-spacing: -2px; line-height: 1; }
+  .offer-price-detail { text-align: right; }
+  .offer-price-desc { font-size: 0.75rem; color: #6b7280; }
+  .offer-price-note { font-size: 0.68rem; color: #6b7280; opacity: 0.7; margin-top: 2px; }
+
+  .get-full-btn { width: 100%; padding: 12px; background: linear-gradient(135deg, #00e5ff, #0099bb); color: #080b14; border: none; border-radius: 8px; font-weight: 700; font-size: 0.88rem; cursor: pointer; margin-bottom: 8px; }
+  .get-full-btn:hover { opacity: 0.9; }
+  .later-btn { width: 100%; padding: 9px; background: transparent; color: #6b7280; border: 1px solid rgba(255,255,255,0.07); border-radius: 8px; font-size: 0.78rem; cursor: pointer; }
+  .later-btn:hover { color: #e8eaf6; }
+
   /* DASHBOARD */
   .dashboard { display: none; }
-  .user-bar { padding: 12px 20px; background: rgba(0,229,255,0.06); border-bottom: 1px solid rgba(0,229,255,0.1); display: flex; align-items: center; justify-content: space-between; }
-  .user-email { font-size: 0.75rem; color: #00e5ff; }
-  .status-bar { padding: 14px 20px; }
+  .user-bar { padding: 10px 20px; background: rgba(0,229,255,0.06); border-bottom: 1px solid rgba(0,229,255,0.1); display: flex; align-items: center; justify-content: space-between; }
+  .user-email { font-size: 0.72rem; color: #00e5ff; }
+  .user-analyses { font-size: 0.72rem; color: #6b7280; }
+  .status-bar { padding: 12px 20px; }
   .status-card { background: #0d1224; border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; padding: 12px 14px; display: flex; align-items: center; gap: 10px; }
-  .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #00ff88; animation: pulse 2s ease-in-out infinite; flex-shrink: 0; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  .status-dot-green { width: 8px; height: 8px; border-radius: 50%; background: #00ff88; animation: pulse 2s ease-in-out infinite; flex-shrink: 0; }
   .status-label { color: #00ff88; font-weight: 700; font-size: 0.82rem; }
   .status-sub { color: #6b7280; font-size: 0.72rem; margin-top: 2px; }
-  .stats { padding: 0 20px 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .stats { padding: 0 20px 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .stat-card { background: #0d1224; border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; padding: 12px 14px; }
   .stat-num { font-size: 1.4rem; font-weight: 800; color: #00e5ff; letter-spacing: -1px; }
   .stat-label { font-size: 0.72rem; color: #6b7280; margin-top: 2px; }
-  .footer { padding: 12px 20px; border-top: 1px solid rgba(255,255,255,0.07); text-align: center; font-size: 0.72rem; color: #6b7280; }
+  .upgrade-bar { margin: 0 20px 14px; }
+  .upgrade-link { display: block; text-align: center; padding: 10px; background: rgba(0,229,255,0.08); border: 1px solid rgba(0,229,255,0.2); border-radius: 10px; color: #00e5ff; font-size: 0.8rem; font-weight: 700; text-decoration: none; }
+  .upgrade-link:hover { background: rgba(0,229,255,0.14); }
+
+  .footer { padding: 10px 20px; border-top: 1px solid rgba(255,255,255,0.07); text-align: center; font-size: 0.72rem; color: #6b7280; }
   .footer a { color: #00e5ff; text-decoration: none; }
 </style>
 </head>
@@ -50,24 +93,56 @@
 <!-- LOGIN -->
 <div class="login-section" id="loginSection">
   <div class="login-title">Sign in to NekoShield</div>
-  <div class="login-sub">Enter your email to sign in or create a free account at <a href="https://nekoshield.com" target="_blank" style="color:#00e5ff;text-decoration:none;">nekoshield.com →</a></div>
-<div style="display:flex;gap:8px;margin-bottom:12px;">
-  <button id="tabLogin" style="flex:1;padding:7px;border-radius:6px;border:1px solid #00e5ff;background:transparent;color:#00e5ff;font-weight:700;font-size:0.8rem;cursor:pointer;">Sign In</button>
-  <button id="tabRegister" style="flex:1;padding:7px;border-radius:6px;border:none;background:#00e5ff;color:#080b14;font-weight:700;font-size:0.8rem;cursor:pointer;">Register Free</button>
-</div>
+  <div class="login-sub">Activate real-time protection on every link you visit.</div>
+  <div class="tabs-row">
+    <button class="tab-btn active" id="tabLogin">Sign In</button>
+    <button class="tab-btn" id="tabRegister">Register Free</button>
+  </div>
   <input type="email" class="input-field" id="emailInput" placeholder="your@email.com" />
   <button class="login-btn" id="loginBtn">Activate Protection 🛡️</button>
   <div class="login-msg" id="loginMsg"></div>
+</div>
+
+<!-- WELCOME CARD -->
+<div class="welcome-card" id="welcomeCard">
+  <div class="neko-wrap">
+    <div class="neko-ring"></div>
+    <img src="icons/neko.jpg" class="neko-avatar" alt="Neko"
+      onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛡️</text></svg>'">
+  </div>
+
+  <div class="welcome-title">Welcome to <span>NekoShield!</span> 🎉</div>
+  <div class="welcome-active">
+    <div class="active-dot"></div>
+    Free URL protection is now active
+  </div>
+
+  <div class="offer-box">
+    <div class="offer-copy">
+      Every suspicious link is a potential threat. Get <strong>full AI-powered protection</strong> — brand impersonation detection, deep threat analysis, and instant reports on every link you visit.
+    </div>
+    <div class="offer-price-row">
+      <div class="offer-price">$1</div>
+      <div class="offer-price-detail">
+        <div class="offer-price-desc">15 analyses · one time</div>
+        <div class="offer-price-note">Introductory offer</div>
+      </div>
+    </div>
+  </div>
+
+  <button class="get-full-btn" id="getFullBtn">🚀 Get Full Protection — $1</button>
+  <button class="later-btn" id="laterBtn">Maybe later</button>
 </div>
 
 <!-- DASHBOARD -->
 <div class="dashboard" id="dashboard">
   <div class="user-bar">
     <div class="user-email" id="userEmailDisplay"></div>
+    <div class="user-analyses" id="userAnalysesDisplay"></div>
   </div>
   <div class="status-bar">
     <div class="status-card">
-      <div class="status-dot"></div>
+      <div class="status-dot-green"></div>
       <div>
         <div class="status-label">Protection Active</div>
         <div class="status-sub">Scanning links in real-time</div>
@@ -87,13 +162,11 @@
   <div class="stats" style="margin-top:0;">
     <div class="stat-card" style="grid-column:span 2;">
       <div class="stat-num" id="linksCount">0</div>
-      <div class="stat-label">Other links scanned</div>
+      <div class="stat-label">Links scanned on pages</div>
     </div>
   </div>
-  <div style="margin: 0 20px 16px;">
-    <a href="https://nekoshield.com" target="_blank" style="display:block;text-align:center;padding:10px;background:rgba(0,229,255,0.08);border:1px solid rgba(0,229,255,0.2);border-radius:10px;color:#00e5ff;font-size:0.8rem;font-weight:700;text-decoration:none;">
-      🚀 Upgrade for full protection →
-    </a>
+  <div class="upgrade-bar">
+    <a href="https://nekoshield.com" target="_blank" class="upgrade-link">🚀 Get Full Protection — $1 →</a>
   </div>
 </div>
 
@@ -102,6 +175,5 @@
 </div>
 
 <script src="popup.js"></script>
-
 </body>
 </html>
