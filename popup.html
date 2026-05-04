@@ -5,167 +5,283 @@
 <title>NekoShield</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { width: 320px; background: #080b14; color: #e8eaf6; font-family: sans-serif; overflow: hidden; }
+  body { width: 340px; background: #080b14; color: #e8eaf6; font-family: sans-serif; overflow: hidden; }
 
-  .header { background: #0d1224; border-bottom: 1px solid rgba(255,255,255,0.07); padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; }
-  .logo { font-size: 1.05rem; font-weight: 800; letter-spacing: -0.5px; }
+  /* HEADER */
+  .header { background: #0d1224; border-bottom: 1px solid rgba(255,255,255,0.07); padding: 13px 16px; display: flex; align-items: center; justify-content: space-between; }
+  .logo { font-size: 1rem; font-weight: 800; letter-spacing: -0.5px; }
   .logo span { color: #00e5ff; }
-  .logout-btn { font-size: 0.72rem; color: #6b7280; cursor: pointer; background: none; border: none; }
+  .header-right { display: flex; align-items: center; gap: 10px; }
+  .user-chip { font-size: 0.7rem; color: #6b7280; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .analyses-chip { font-size: 0.7rem; color: #00e5ff; font-weight: 700; background: rgba(0,229,255,0.08); padding: 3px 8px; border-radius: 100px; border: 1px solid rgba(0,229,255,0.2); }
+  .logout-btn { font-size: 0.68rem; color: #6b7280; cursor: pointer; background: none; border: none; }
   .logout-btn:hover { color: #ff2d78; }
 
   /* LOGIN */
-  .login-section { padding: 22px 20px; }
+  .login-section { padding: 22px 18px; }
   .login-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 6px; }
   .login-sub { font-size: 0.78rem; color: #6b7280; margin-bottom: 16px; line-height: 1.6; }
   .tabs-row { display: flex; gap: 8px; margin-bottom: 14px; }
-  .tab-btn { flex: 1; padding: 8px; border-radius: 7px; border: 1px solid rgba(0,229,255,0.4); background: transparent; color: #00e5ff; font-weight: 700; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; }
-  .tab-btn.active { background: #00e5ff; color: #080b14; border-color: #00e5ff; }
+  .tab-auth { flex: 1; padding: 8px; border-radius: 7px; border: 1px solid rgba(0,229,255,0.4); background: transparent; color: #00e5ff; font-weight: 700; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; }
+  .tab-auth.active { background: #00e5ff; color: #080b14; border-color: #00e5ff; }
   .input-field { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px 12px; color: #e8eaf6; font-size: 0.85rem; outline: none; margin-bottom: 10px; }
   .input-field:focus { border-color: rgba(0,229,255,0.4); }
   .login-btn { width: 100%; padding: 11px; background: linear-gradient(135deg, #00e5ff, #0099bb); color: #080b14; border: none; border-radius: 8px; font-weight: 700; font-size: 0.88rem; cursor: pointer; }
   .login-btn:hover { opacity: 0.9; }
   .login-msg { font-size: 0.78rem; text-align: center; margin-top: 10px; min-height: 18px; }
 
-  /* WELCOME CARD */
-  .welcome-card { display: none; padding: 20px; text-align: center; }
-  .neko-wrap { position: relative; display: inline-block; margin-bottom: 14px; }
-  .neko-avatar { width: 76px; height: 76px; border-radius: 50%; object-fit: cover; border: 2px solid #00e5ff; box-shadow: 0 0 20px rgba(0,229,255,0.4); animation: nekoWave 0.6s ease-in-out 4; }
-  @keyframes nekoWave {
-    0%   { transform: rotate(0deg) scale(1); }
-    25%  { transform: rotate(-10deg) scale(1.1); }
-    50%  { transform: rotate(10deg) scale(1.1); }
-    75%  { transform: rotate(-6deg) scale(1.05); }
-    100% { transform: rotate(0deg) scale(1); }
-  }
+  /* WELCOME */
+  .welcome-card { display: none; padding: 20px 18px; text-align: center; }
+  .neko-wrap { position: relative; display: inline-block; margin-bottom: 12px; }
+  .neko-avatar { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 2px solid #00e5ff; box-shadow: 0 0 20px rgba(0,229,255,0.4); animation: nekoWave 0.6s ease-in-out 4; }
+  @keyframes nekoWave { 0%{transform:rotate(0deg) scale(1)} 25%{transform:rotate(-10deg) scale(1.1)} 50%{transform:rotate(10deg) scale(1.1)} 75%{transform:rotate(-6deg) scale(1.05)} 100%{transform:rotate(0deg) scale(1)} }
   .neko-ring { position: absolute; inset: -6px; border-radius: 50%; border: 2px solid rgba(0,229,255,0.2); animation: spin 6s linear infinite; }
-  .neko-ring::before { content:''; position:absolute; width:8px; height:8px; background:#00e5ff; border-radius:50%; top:-4px; left:50%; box-shadow: 0 0 6px #00e5ff; }
+  .neko-ring::before { content:''; position:absolute; width:7px; height:7px; background:#00e5ff; border-radius:50%; top:-3px; left:50%; box-shadow:0 0 6px #00e5ff; }
   @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-
-  .welcome-title { font-size: 1.05rem; font-weight: 800; margin-bottom: 4px; letter-spacing: -0.3px; }
+  .welcome-title { font-size: 1rem; font-weight: 800; margin-bottom: 4px; }
   .welcome-title span { color: #00e5ff; }
-  .welcome-active { display: inline-flex; align-items: center; gap: 6px; background: rgba(0,255,136,0.08); border: 1px solid rgba(0,255,136,0.2); border-radius: 100px; padding: 4px 12px; font-size: 0.72rem; color: #00ff88; font-weight: 600; margin: 8px 0 14px; }
+  .welcome-active { display: inline-flex; align-items: center; gap: 6px; background: rgba(0,255,136,0.08); border: 1px solid rgba(0,255,136,0.2); border-radius: 100px; padding: 4px 12px; font-size: 0.7rem; color: #00ff88; font-weight: 600; margin: 8px 0 14px; }
   .active-dot { width: 6px; height: 6px; border-radius: 50%; background: #00ff88; animation: pulse 2s ease-in-out infinite; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-
-  .offer-box { background: linear-gradient(135deg, rgba(0,229,255,0.07), rgba(255,45,120,0.05)); border: 1px solid rgba(0,229,255,0.25); border-radius: 12px; padding: 16px; margin-bottom: 14px; text-align: left; }
-  .offer-copy { font-size: 0.8rem; color: #9ca3af; line-height: 1.6; margin-bottom: 14px; }
+  .offer-box { background: linear-gradient(135deg, rgba(0,229,255,0.07), rgba(255,45,120,0.05)); border: 1px solid rgba(0,229,255,0.25); border-radius: 12px; padding: 14px; margin-bottom: 12px; text-align: left; }
+  .offer-copy { font-size: 0.78rem; color: #9ca3af; line-height: 1.6; margin-bottom: 12px; }
   .offer-copy strong { color: #e8eaf6; }
   .offer-price-row { display: flex; align-items: center; justify-content: space-between; }
-  .offer-price { font-size: 2.2rem; font-weight: 800; color: #00e5ff; letter-spacing: -2px; line-height: 1; }
-  .offer-price-detail { text-align: right; }
-  .offer-price-desc { font-size: 0.75rem; color: #6b7280; }
-  .offer-price-note { font-size: 0.68rem; color: #6b7280; opacity: 0.7; margin-top: 2px; }
-
-  .get-full-btn { width: 100%; padding: 12px; background: linear-gradient(135deg, #00e5ff, #0099bb); color: #080b14; border: none; border-radius: 8px; font-weight: 700; font-size: 0.88rem; cursor: pointer; margin-bottom: 8px; }
+  .offer-price { font-size: 2rem; font-weight: 800; color: #00e5ff; letter-spacing: -2px; line-height: 1; }
+  .offer-price-desc { font-size: 0.72rem; color: #6b7280; text-align: right; }
+  .offer-price-note { font-size: 0.65rem; color: #6b7280; opacity: 0.7; margin-top: 2px; text-align: right; }
+  .get-full-btn { width: 100%; padding: 11px; background: linear-gradient(135deg, #00e5ff, #0099bb); color: #080b14; border: none; border-radius: 8px; font-weight: 700; font-size: 0.85rem; cursor: pointer; margin-bottom: 8px; }
   .get-full-btn:hover { opacity: 0.9; }
-  .later-btn { width: 100%; padding: 9px; background: transparent; color: #6b7280; border: 1px solid rgba(255,255,255,0.07); border-radius: 8px; font-size: 0.78rem; cursor: pointer; }
+  .later-btn { width: 100%; padding: 8px; background: transparent; color: #6b7280; border: 1px solid rgba(255,255,255,0.07); border-radius: 8px; font-size: 0.75rem; cursor: pointer; }
   .later-btn:hover { color: #e8eaf6; }
 
-  /* DASHBOARD */
-  .dashboard { display: none; }
-  .user-bar { padding: 10px 20px; background: rgba(0,229,255,0.06); border-bottom: 1px solid rgba(0,229,255,0.1); display: flex; align-items: center; justify-content: space-between; }
-  .user-email { font-size: 0.72rem; color: #00e5ff; }
-  .user-analyses { font-size: 0.72rem; color: #6b7280; }
-  .status-bar { padding: 12px 20px; }
-  .status-card { background: #0d1224; border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; padding: 12px 14px; display: flex; align-items: center; gap: 10px; }
-  .status-dot-green { width: 8px; height: 8px; border-radius: 50%; background: #00ff88; animation: pulse 2s ease-in-out infinite; flex-shrink: 0; }
-  .status-label { color: #00ff88; font-weight: 700; font-size: 0.82rem; }
-  .status-sub { color: #6b7280; font-size: 0.72rem; margin-top: 2px; }
-  .stats { padding: 0 20px 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .stat-card { background: #0d1224; border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; padding: 12px 14px; }
+  /* MAIN TABS */
+  .main-tabs { display: flex; background: #0d1224; border-bottom: 1px solid rgba(255,255,255,0.07); }
+  .main-tab { flex: 1; padding: 10px 6px; border: none; background: transparent; color: #6b7280; font-size: 0.72rem; font-weight: 700; cursor: pointer; transition: all 0.2s; border-bottom: 2px solid transparent; }
+  .main-tab.active { color: #00e5ff; border-bottom-color: #00e5ff; background: rgba(0,229,255,0.04); }
+  .main-tab:hover:not(.active) { color: #e8eaf6; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* DASHBOARD TAB */
+  .status-bar { padding: 12px 16px; }
+  .status-card { background: #0d1224; border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; padding: 11px 14px; display: flex; align-items: center; gap: 10px; }
+  .status-dot-green { width: 7px; height: 7px; border-radius: 50%; background: #00ff88; animation: pulse 2s ease-in-out infinite; flex-shrink: 0; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  .status-label { color: #00ff88; font-weight: 700; font-size: 0.8rem; }
+  .status-sub { color: #6b7280; font-size: 0.7rem; margin-top: 2px; }
+  .stats { padding: 0 16px 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .stat-card { background: #0d1224; border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; padding: 10px 12px; }
   .stat-num { font-size: 1.4rem; font-weight: 800; color: #00e5ff; letter-spacing: -1px; }
-  .stat-label { font-size: 0.72rem; color: #6b7280; margin-top: 2px; }
-  .upgrade-bar { margin: 0 20px 14px; }
-  .upgrade-link { display: block; text-align: center; padding: 10px; background: rgba(0,229,255,0.08); border: 1px solid rgba(0,229,255,0.2); border-radius: 10px; color: #00e5ff; font-size: 0.8rem; font-weight: 700; text-decoration: none; }
+  .stat-label { font-size: 0.68rem; color: #6b7280; margin-top: 2px; }
+  .upgrade-bar { margin: 0 16px 14px; }
+  .upgrade-link { display: block; text-align: center; padding: 10px; background: rgba(0,229,255,0.08); border: 1px solid rgba(0,229,255,0.2); border-radius: 10px; color: #00e5ff; font-size: 0.78rem; font-weight: 700; text-decoration: none; }
   .upgrade-link:hover { background: rgba(0,229,255,0.14); }
 
-  .footer { padding: 10px 20px; border-top: 1px solid rgba(255,255,255,0.07); text-align: center; font-size: 0.72rem; color: #6b7280; }
+  /* ANALYZE TAB */
+  .analyze-section { padding: 14px 16px; }
+  .analyze-label { font-size: 0.75rem; color: #6b7280; margin-bottom: 8px; line-height: 1.5; }
+  .url-input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px 12px; color: #e8eaf6; font-size: 0.82rem; outline: none; margin-bottom: 8px; }
+  .url-input:focus { border-color: rgba(0,229,255,0.4); }
+  .analyze-run-btn { width: 100%; padding: 10px; background: linear-gradient(135deg, #00e5ff, #0099bb); color: #080b14; border: none; border-radius: 8px; font-weight: 700; font-size: 0.85rem; cursor: pointer; margin-bottom: 12px; }
+  .analyze-run-btn:hover { opacity: 0.9; }
+  .no-analyses-msg { background: rgba(255,45,120,0.08); border: 1px solid rgba(255,45,120,0.2); border-radius: 10px; padding: 12px; text-align: center; font-size: 0.78rem; color: #ff2d78; margin-bottom: 10px; display: none; }
+  .no-analyses-msg a { color: #00e5ff; text-decoration: none; font-weight: 700; }
+
+  /* LOADING */
+  .loading-bar { display: none; text-align: center; padding: 20px 0; }
+  .shield-spin { font-size: 2.5rem; animation: shieldPulse 0.8s ease-in-out infinite; display: block; margin-bottom: 8px; }
+  @keyframes shieldPulse { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.2);opacity:0.6} }
+  .loading-text { font-size: 0.78rem; color: #6b7280; }
+
+  /* RESULTS */
+  .result-card { display: none; background: #0d1224; border-radius: 12px; overflow: hidden; }
+  .result-verdict { padding: 14px 16px; text-align: center; }
+  .result-verdict.safe { background: rgba(0,255,136,0.06); border-bottom: 1px solid rgba(0,255,136,0.1); }
+  .result-verdict.suspicious { background: rgba(255,214,0,0.06); border-bottom: 1px solid rgba(255,214,0,0.1); }
+  .result-verdict.dangerous { background: rgba(255,45,120,0.06); border-bottom: 1px solid rgba(255,45,120,0.1); }
+  .result-emoji { font-size: 2rem; margin-bottom: 4px; }
+  .result-title { font-size: 1rem; font-weight: 800; letter-spacing: -0.5px; }
+  .result-title.safe { color: #00ff88; }
+  .result-title.suspicious { color: #ffd600; }
+  .result-title.dangerous { color: #ff2d78; }
+  .result-score { font-size: 0.75rem; color: #6b7280; margin-top: 2px; }
+
+  .result-details { padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; max-height: 200px; overflow-y: auto; }
+  .detail-item { display: flex; align-items: flex-start; gap: 8px; padding: 7px 10px; background: rgba(255,255,255,0.02); border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); }
+  .detail-dot { width: 6px; height: 6px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+  .detail-dot.danger { background: #ff2d78; }
+  .detail-dot.warning { background: #ffd600; }
+  .detail-dot.safe { background: #00ff88; }
+  .detail-label { font-size: 0.65rem; color: #6b7280; text-transform: uppercase; letter-spacing: 0.4px; }
+  .detail-value { font-size: 0.78rem; font-weight: 500; margin-top: 1px; }
+  .result-explanation { margin: 0 14px 12px; padding: 10px 12px; background: rgba(0,229,255,0.04); border: 1px solid rgba(0,229,255,0.1); border-radius: 8px; font-size: 0.75rem; color: #9ca3af; line-height: 1.6; display: none; }
+  .result-analyses { padding: 8px 14px; text-align: center; font-size: 0.7rem; color: #6b7280; border-top: 1px solid rgba(255,255,255,0.05); }
+
+  /* REPORT TAB */
+  .report-section { padding: 14px 16px; }
+  .report-points-card { background: linear-gradient(135deg, rgba(0,229,255,0.07), rgba(255,45,120,0.05)); border: 1px solid rgba(0,229,255,0.2); border-radius: 10px; padding: 12px 14px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; }
+  .report-points-label { font-size: 0.72rem; color: #6b7280; }
+  .report-points-num { font-size: 1.3rem; font-weight: 800; color: #00e5ff; letter-spacing: -1px; }
+  .report-points-sub { font-size: 0.65rem; color: #6b7280; }
+  .report-label { font-size: 0.75rem; color: #6b7280; margin-bottom: 8px; line-height: 1.5; }
+  .report-label strong { color: #00ff88; }
+  .report-run-btn { width: 100%; padding: 10px; background: rgba(255,45,120,0.12); border: 1px solid rgba(255,45,120,0.3); color: #ff2d78; border-radius: 8px; font-weight: 700; font-size: 0.85rem; cursor: pointer; margin-bottom: 8px; }
+  .report-run-btn:hover { background: rgba(255,45,120,0.2); }
+  .report-msg { font-size: 0.78rem; text-align: center; min-height: 18px; margin-top: 6px; }
+  .report-history { margin-top: 14px; }
+  .report-history-title { font-size: 0.7rem; color: #6b7280; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .report-history-empty { font-size: 0.75rem; color: #6b7280; text-align: center; padding: 16px 0; }
+
+  /* FOOTER */
+  .footer { padding: 8px 16px; border-top: 1px solid rgba(255,255,255,0.07); text-align: center; font-size: 0.68rem; color: #6b7280; }
   .footer a { color: #00e5ff; text-decoration: none; }
 </style>
 </head>
 <body>
 
+<!-- HEADER -->
 <div class="header">
   <div class="logo">🛡️ Neko<span>Shield</span></div>
-  <button class="logout-btn" id="logoutBtn" style="display:none">Sign out</button>
+  <div class="header-right">
+    <span class="user-chip" id="headerEmail"></span>
+    <span class="analyses-chip" id="headerAnalyses" style="display:none"></span>
+    <button class="logout-btn" id="logoutBtn" style="display:none">Sign out</button>
+  </div>
 </div>
 
-<!-- LOGIN -->
-<div class="login-section" id="loginSection">
-  <div class="login-title">Sign in to NekoShield</div>
-  <div class="login-sub">Activate real-time protection on every link you visit.</div>
-  <div class="tabs-row">
-    <button class="tab-btn active" id="tabLogin">Sign In</button>
-    <button class="tab-btn" id="tabRegister">Register Free</button>
+<!-- LOGIN SECTION -->
+<div id="loginSection">
+  <div class="login-section">
+    <div class="login-title">Sign in to NekoShield</div>
+    <div class="login-sub">Activate real-time protection on every link you visit.</div>
+    <div class="tabs-row">
+      <button class="tab-auth active" id="tabLogin">Sign In</button>
+      <button class="tab-auth" id="tabRegister">Register Free</button>
+    </div>
+    <input type="email" class="input-field" id="emailInput" placeholder="your@email.com" />
+    <button class="login-btn" id="loginBtn">Activate Protection 🛡️</button>
+    <div class="login-msg" id="loginMsg"></div>
   </div>
-  <input type="email" class="input-field" id="emailInput" placeholder="your@email.com" />
-  <button class="login-btn" id="loginBtn">Activate Protection 🛡️</button>
-  <div class="login-msg" id="loginMsg"></div>
 </div>
 
 <!-- WELCOME CARD -->
 <div class="welcome-card" id="welcomeCard">
   <div class="neko-wrap">
     <div class="neko-ring"></div>
-    <img src="icons/neko.jpg" class="neko-avatar" alt="Neko" id="nekoAvatar">
+    <img id="nekoAvatar" src="icons/neko.jpg" class="neko-avatar" alt="Neko">
   </div>
-
   <div class="welcome-title">Welcome to <span>NekoShield!</span> 🎉</div>
   <div class="welcome-active">
     <div class="active-dot"></div>
     Free URL protection is now active
   </div>
-
   <div class="offer-box">
     <div class="offer-copy">
       Every suspicious link is a potential threat. Get <strong>full AI-powered protection</strong> — brand impersonation detection, deep threat analysis, and instant reports on every link you visit.
     </div>
     <div class="offer-price-row">
       <div class="offer-price">$1</div>
-      <div class="offer-price-detail">
+      <div>
         <div class="offer-price-desc">15 analyses · one time</div>
         <div class="offer-price-note">Introductory offer</div>
       </div>
     </div>
   </div>
-
   <button class="get-full-btn" id="getFullBtn">🚀 Get Full Protection — $1</button>
   <button class="later-btn" id="laterBtn">Maybe later</button>
 </div>
 
-<!-- DASHBOARD -->
-<div class="dashboard" id="dashboard">
-  <div class="user-bar">
-    <div class="user-email" id="userEmailDisplay"></div>
-    <div class="user-analyses" id="userAnalysesDisplay"></div>
+<!-- DASHBOARD (3 tabs) -->
+<div id="mainDashboard" style="display:none">
+  <div class="main-tabs">
+    <button class="main-tab active" id="tabDashboard" onclick="switchMainTab('dashboard')">🛡️ Dashboard</button>
+    <button class="main-tab" id="tabAnalyze" onclick="switchMainTab('analyze')">🔍 Analyze</button>
+    <button class="main-tab" id="tabReport" onclick="switchMainTab('report')">🚩 Report</button>
   </div>
-  <div class="status-bar">
-    <div class="status-card">
-      <div class="status-dot-green"></div>
-      <div>
-        <div class="status-label">Protection Active</div>
-        <div class="status-sub">Scanning links in real-time</div>
+
+  <!-- DASHBOARD PANEL -->
+  <div class="tab-panel active" id="panelDashboard">
+    <div class="status-bar">
+      <div class="status-card">
+        <div class="status-dot-green"></div>
+        <div>
+          <div class="status-label">Protection Active</div>
+          <div class="status-sub">Scanning links in real-time</div>
+        </div>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-num" id="scannedCount">0</div>
+        <div class="stat-label">Pages scanned</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="threatsCount" style="color:#ff2d78">0</div>
+        <div class="stat-label">Threats detected</div>
+      </div>
+    </div>
+    <div class="stats" style="margin-top:0;">
+      <div class="stat-card" style="grid-column:span 2;">
+        <div class="stat-num" id="linksCount">0</div>
+        <div class="stat-label">Links scanned on pages</div>
+      </div>
+    </div>
+    <div class="upgrade-bar">
+      <a href="https://nekoshield.com" target="_blank" class="upgrade-link">🚀 Get Full Protection — $1 →</a>
+    </div>
+  </div>
+
+  <!-- ANALYZE PANEL -->
+  <div class="tab-panel" id="panelAnalyze">
+    <div class="analyze-section">
+      <div class="analyze-label">Paste any suspicious link and get a full detailed threat report. Each analysis uses 1 of your analyses.</div>
+
+      <div class="no-analyses-msg" id="noAnalysesMsg">
+        You have no analyses left. <a href="https://nekoshield.com" target="_blank">Get more at nekoshield.com →</a>
+      </div>
+
+      <input type="text" class="url-input" id="urlAnalyzeInput" placeholder="https://suspicious-link.com" />
+      <button class="analyze-run-btn" id="analyzeRunBtn">🔍 Analyze Link</button>
+
+      <div class="loading-bar" id="analyzeLoading">
+        <span class="shield-spin">🛡️</span>
+        <div class="loading-text">Scanning for threats...</div>
+      </div>
+
+      <div class="result-card" id="resultCard">
+        <div class="result-verdict" id="resultVerdict">
+          <div class="result-emoji" id="resultEmoji"></div>
+          <div class="result-title" id="resultTitle"></div>
+          <div class="result-score" id="resultScore"></div>
+        </div>
+        <div class="result-details" id="resultDetails"></div>
+        <div class="result-explanation" id="resultExplanation"></div>
+        <div class="result-analyses" id="resultAnalyses"></div>
       </div>
     </div>
   </div>
-  <div class="stats">
-    <div class="stat-card">
-      <div class="stat-num" id="scannedCount">0</div>
-      <div class="stat-label">URLs scanned</div>
+
+  <!-- REPORT PANEL -->
+  <div class="tab-panel" id="panelReport">
+    <div class="report-section">
+      <div class="report-points-card">
+        <div>
+          <div class="report-points-label">Your report points</div>
+          <div class="report-points-sub">1 report = 1 free analysis</div>
+        </div>
+        <div style="text-align:right">
+          <div class="report-points-num" id="reportPointsNum">0</div>
+          <div class="report-points-sub">points earned</div>
+        </div>
+      </div>
+
+      <div class="report-label">
+        Found a suspicious link? Report it and <strong>earn 1 free analysis</strong>. Your reports help protect the community.
+      </div>
+      <input type="text" class="url-input" id="urlReportInput" placeholder="https://suspicious-link.com" style="margin-top:8px;" />
+      <button class="report-run-btn" id="reportRunBtn">🚩 Report This Link</button>
+      <div class="report-msg" id="reportMsg"></div>
     </div>
-    <div class="stat-card">
-      <div class="stat-num" id="threatsCount" style="color:#ff2d78">0</div>
-      <div class="stat-label">Threats detected</div>
-    </div>
-  </div>
-  <div class="stats" style="margin-top:0;">
-    <div class="stat-card" style="grid-column:span 2;">
-      <div class="stat-num" id="linksCount">0</div>
-      <div class="stat-label">Links scanned on pages</div>
-    </div>
-  </div>
-  <div class="upgrade-bar">
-    <a href="https://nekoshield.com" target="_blank" class="upgrade-link">🚀 Get Full Protection — $1 →</a>
   </div>
 </div>
 
