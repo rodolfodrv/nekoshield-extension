@@ -1,6 +1,10 @@
 document.addEventListener('DOMContentLoaded', function() {
 
   var isLoginMode = true;
+  // Tab switching via event listeners (no inline onclick)
+  document.getElementById('tabDashboard').addEventListener('click', function() { switchMainTab('dashboard'); });
+  document.getElementById('tabAnalyze').addEventListener('click', function() { switchMainTab('analyze'); });
+  document.getElementById('tabReport').addEventListener('click', function() { switchMainTab('report'); });
   var currentUser = null;
 
   // ── NEKO IMAGE FALLBACK ───────────────────────────────────────────────────
