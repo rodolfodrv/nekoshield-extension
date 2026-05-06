@@ -150,7 +150,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // ── WELCOME BUTTONS ───────────────────────────────────────────────────────
   document.getElementById('getFullBtn').addEventListener('click', function() {
-    chrome.tabs.create({ url: 'https://nekoshield.com/#pricing' });
+    chrome.tabs.create({ url: 'https://nekoshield.com/?section=pricing' });
   });
 
   document.getElementById('laterBtn').addEventListener('click', function() {
