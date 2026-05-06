@@ -1,10 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
 
   var isLoginMode = true;
-  // Tab switching via event listeners (no inline onclick)
-  document.getElementById('tabDashboard').addEventListener('click', function() { switchMainTab('dashboard'); });
-  document.getElementById('tabAnalyze').addEventListener('click', function() { switchMainTab('analyze'); });
-  document.getElementById('tabReport').addEventListener('click', function() { switchMainTab('report'); });
   var currentUser = null;
 
   // ── NEKO IMAGE FALLBACK ───────────────────────────────────────────────────
@@ -294,18 +290,24 @@ document.addEventListener('DOMContentLoaded', function() {
     chrome.runtime.sendMessage({ action: 'reportUrl', url: url }, function(response) {
       document.getElementById('reportRunBtn').disabled = false;
       if (response && response.success) {
-        showReportMsg('✅ Report submitted! You earned 1 free analysis.', '#00ff88');
         document.getElementById('urlReportInput').value = '';
+
         // Update points display
-        var current = parseInt(document.getElementById('reportPointsNum').textContent) || 0;
-        document.getElementById('reportPointsNum').textContent = current + 1;
-        // Update analyses in header
-        if (currentUser) {
+        if (response.pointsAfter !== undefined) {
+          document.getElementById('reportPointsNum').textContent = response.pointsAfter;
+        }
+
+        // If analysis was earned, update token count
+        if (response.analysisEarned && currentUser) {
           currentUser.tokens = (currentUser.tokens || 0) + 5;
           var newAnalyses = toAnalyses(currentUser.tokens);
           document.getElementById('headerAnalyses').textContent = newAnalyses + ' analyses';
           document.getElementById('headerAnalyses').style.display = 'inline-flex';
           updateAnalyzeUI(newAnalyses);
+          showReportMsg('🎉 ' + response.message, '#00ff88');
+        } else {
+          var remaining = 10 - (response.pointsAfter || 0);
+          showReportMsg('✅ Report submitted! ' + remaining + ' more to earn a free analysis.', '#00e5ff');
         }
       } else if (response && response.error) {
         showReportMsg(response.error, '#ff2d78');
