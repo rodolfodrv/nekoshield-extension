@@ -164,12 +164,17 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // ── MAIN TABS ─────────────────────────────────────────────────────────────
-  window.switchMainTab = function(tab) {
+  // ── MAIN TABS ─────────────────────────────────────────────────────────────
+  document.getElementById('tabDashboard').addEventListener('click', function() { switchMainTab('dashboard'); });
+  document.getElementById('tabAnalyze').addEventListener('click', function() { switchMainTab('analyze'); });
+  document.getElementById('tabReport').addEventListener('click', function() { switchMainTab('report'); });
+
+  function switchMainTab(tab) {
     document.querySelectorAll('.main-tab').forEach(function(t) { t.classList.remove('active'); });
     document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
     document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
     document.getElementById('panel' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
-  };
+  }
 
   // ── ANALYZE TAB ───────────────────────────────────────────────────────────
   document.getElementById('analyzeRunBtn').addEventListener('click', function() {
