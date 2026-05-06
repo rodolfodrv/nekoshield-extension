@@ -71,10 +71,19 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
   if (request.action === 'getUser') {
     chrome.storage.local.get(['userEmail', 'userTokens', 'reportPoints'], function(data) {
-      sendResponse({
-        email: data.userEmail || null,
-        tokens: data.userTokens || 0,
-        reportPoints: data.reportPoints || 0
+      if (!data.userEmail) { sendResponse({ email: null }); return; }
+      // Fetch fresh token + points data from server
+      fetch('https://nekoshield-server.onrender.com/tokens', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: data.userEmail })
+      }).then(function(r) { return r.json(); }).then(function(d) {
+        var tokens = d.tokens !== undefined ? d.tokens : (data.userTokens || 0);
+        var reportPoints = d.report_points !== undefined ? d.report_points : (data.reportPoints || 0);
+        chrome.storage.local.set({ userTokens: tokens, reportPoints: reportPoints });
+        sendResponse({ email: data.userEmail, tokens: tokens, reportPoints: reportPoints });
+      }).catch(function() {
+        sendResponse({ email: data.userEmail, tokens: data.userTokens || 0, reportPoints: data.reportPoints || 0 });
       });
     });
     return true;
