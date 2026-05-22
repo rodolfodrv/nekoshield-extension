@@ -1,158 +1,238 @@
-console.log('NekoShield content.js loaded');
+(function() {
+  // Don't run twice on same page
+  if (sessionStorage.getItem('neko_analyzed')) return;
+  if (!window.location.href.startsWith('http')) return;
+  sessionStorage.setItem('neko_analyzed', '1');
 
-function createNekoBar(verdict, score) {
-  var existing = document.getElementById('nekoshield-bar');
-  if (existing) existing.remove();
-
-  var bar = document.createElement('div');
-  bar.id = 'nekoshield-bar';
-  bar.style.cssText = [
-    'position: fixed',
-    'top: 0',
-    'left: 0',
-    'right: 0',
-    'z-index: 2147483647',
-    'padding: 10px 20px',
-    'display: flex',
-    'align-items: center',
-    'justify-content: space-between',
-    'font-family: sans-serif',
-    'font-size: 13px',
-    'font-weight: 600',
-    'box-shadow: 0 2px 10px rgba(0,0,0,0.3)'
-  ].join(';');
-
-  if (verdict === 'dangerous') {
-    bar.style.background = '#ff2d78';
-    bar.style.color = '#fff';
-    bar.innerHTML = '🚨 <strong>NekoShield: HIGH RISK</strong> — This page may be dangerous! Threat level: ' + score + '%&nbsp;&nbsp;<a href="https://nekoshield.com" target="_blank" style="color:#fff;font-size:11px;opacity:0.85;">Learn more →</a><span id="neko-close" style="cursor:pointer;margin-left:16px;opacity:0.8;">✕</span>';
-  } else if (verdict === 'suspicious') {
-    bar.style.background = '#ffd600';
-    bar.style.color = '#080b14';
-    bar.innerHTML = '⚠️ <strong>NekoShield: SUSPICIOUS</strong> — Proceed with caution. Threat level: ' + score + '%&nbsp;&nbsp;<a href="https://nekoshield.com" target="_blank" style="color:#080b14;font-size:11px;opacity:0.75;">Learn more →</a><span id="neko-close" style="cursor:pointer;margin-left:16px;opacity:0.7;">✕</span>';
-  } else {
-    bar.style.background = '#00c853';
-    bar.style.color = '#fff';
-    bar.innerHTML = '✅ <strong>NekoShield: Page is Safe</strong> — No threats detected.<span id="neko-close" style="cursor:pointer;margin-left:16px;opacity:0.8;">✕</span>';
+  // ── EXTRACT PAGE DATA ────────────────────────────────────────────────────
+  function extractPageData() {
+    var bodyText = document.body ? document.body.innerText.substring(0, 3000) : '';
+    var hasCountdown = !!document.querySelector(
+      '[id*="countdown"],[class*="countdown"],[id*="timer"],[class*="timer"]'
+    );
+    var hasPassword = !!document.querySelector('input[type="password"]');
+    var hasCreditCard = !!document.querySelector(
+      'input[name*="card"],input[name*="credit"],input[id*="card"],input[placeholder*="card"]'
+    );
+    return {
+      text: bodyText,
+      url: window.location.href,
+      hasCountdown: hasCountdown,
+      hasPasswordAndCard: hasPassword && hasCreditCard,
+      hasForm: !!document.querySelector('form')
+    };
   }
 
-  document.body.prepend(bar);
+  // ── LOCAL MANIPULATION ANALYSIS (no AI) ──────────────────────────────────
+  function analyzeManipulation(pageData) {
+    var text = pageData.text.toLowerCase();
+    var score = 0;
+    var patterns = [];
 
-  document.getElementById('neko-close').addEventListener('click', function() {
-    bar.remove();
-  });
-
-  if (verdict === 'safe') {
-    setTimeout(function() {
-      if (bar && bar.parentNode) bar.remove();
-    }, 4000);
-  }
-}
-
-function extractLinks() {
-  var links = document.querySelectorAll('a[href]');
-  var urls = [];
-  links.forEach(function(link) {
-    var href = link.href;
-    if (href && href.startsWith('http') && !href.includes(window.location.hostname)) {
-      urls.push({ element: link, url: href });
-    }
-  });
-  return urls;
-}
-
-function showLinkWarning(element, verdict) {
-  if (verdict === 'dangerous') {
-    element.style.border = '2px solid #ff2d78';
-    element.style.borderRadius = '4px';
-    element.style.padding = '2px';
-    element.setAttribute('title', '🚨 NekoShield: HIGH RISK — This link may be dangerous');
-  } else if (verdict === 'suspicious') {
-    element.style.border = '2px solid #ffd600';
-    element.style.borderRadius = '4px';
-    element.style.padding = '2px';
-    element.setAttribute('title', '⚠️ NekoShield: SUSPICIOUS — Proceed with caution');
-  }
-}
-
-async function scanCurrentPage() {
-  var currentUrl = window.location.href;
-  var shownKey = 'neko_shown_' + btoa(currentUrl).substring(0, 20);
-  
-  if (sessionStorage.getItem(shownKey)) return;
-  
-  try {
-    var response = await chrome.runtime.sendMessage({
-      action: 'analyzeUrl',
-      url: currentUrl
+    var urgencyWords = [
+      'act now', 'act immediately', 'immediately', 'expires in', 'expires today',
+      'limited time', 'act fast', 'within 24 hours', 'urgent', 'final warning',
+      'last chance', 'time is running out', 'don\'t wait', 'respond now'
+    ];
+    urgencyWords.forEach(function(w) {
+      if (text.includes(w)) { score += 12; patterns.push('Urgency tactic: "' + w + '"'); }
     });
-    if (response && response.result) {
-      sessionStorage.setItem(shownKey, '1');
-      createNekoBar(response.result.verdict, response.result.score || 0);
+
+    var fearWords = [
+      'suspended', 'blocked', 'unauthorized access', 'compromised',
+      'verify now', 'account at risk', 'security alert', 'unusual activity',
+      'your account will be', 'immediate action required', 'access restricted',
+      'your information', 'stolen', 'hacked'
+    ];
+    fearWords.forEach(function(w) {
+      if (text.includes(w)) { score += 12; patterns.push('Fear language: "' + w + '"'); }
+    });
+
+    var rewardWords = [
+      'you have won', 'congratulations', 'you\'ve been selected',
+      'claim your prize', 'claim now', 'you are the winner',
+      'free gift', 'special offer just for you', 'exclusive reward'
+    ];
+    rewardWords.forEach(function(w) {
+      if (text.includes(w)) { score += 18; patterns.push('Fake reward: "' + w + '"'); }
+    });
+
+    var coercionWords = [
+      'do not ignore', 'failure to comply', 'legal action',
+      'your account will be permanently', 'you must', 'required to verify'
+    ];
+    coercionWords.forEach(function(w) {
+      if (text.includes(w)) { score += 20; patterns.push('Coercion: "' + w + '"'); }
+    });
+
+    if (pageData.hasCountdown) {
+      score += 20;
+      patterns.push('Countdown timer detected — creates artificial urgency');
     }
-  } catch(e) {
-    console.log('NekoShield error: ' + e.message);
+    if (pageData.hasPasswordAndCard) {
+      score += 35;
+      patterns.push('Password + credit card requested together — highly suspicious');
+    }
+
+    return { score: Math.min(100, score), patterns: patterns };
   }
-}
 
-async function scanLinks() {
-  var links = extractLinks();
-  console.log('NekoShield found ' + links.length + ' links to scan');
+  // ── HUMANIZED MESSAGES ───────────────────────────────────────────────────
+  function getHumanMessage(score) {
+    if (score < 20) {
+      return {
+        level: 'safe',
+        emoji: '✅',
+        title: "You're good to go!",
+        message: "We checked this page and everything looks safe. Browse with confidence!"
+      };
+    } else if (score < 40) {
+      return {
+        level: 'low',
+        emoji: '🤔',
+        title: "Something feels a little off here.",
+        message: "Nothing confirmed, but be careful before clicking anything or sharing personal info."
+      };
+    } else if (score < 70) {
+      return {
+        level: 'medium',
+        emoji: '⚠️',
+        title: "Hold on!",
+        message: "This page is using classic tricks to pressure you into acting fast. That's exactly what scammers do. Take a breath and don't click anything yet."
+      };
+    } else if (score < 90) {
+      return {
+        level: 'high',
+        emoji: '🚨',
+        title: "We're pretty sure this page is trying to trick you.",
+        message: "It's pretending to be someone you trust to steal your information. Please don't enter anything here."
+      };
+    } else {
+      return {
+        level: 'critical',
+        emoji: '🔴',
+        title: "Get out of here!",
+        message: "This is a dangerous phishing attack. Close this page right now and do not click or type anything. You're safe — we caught it in time."
+      };
+    }
+  }
 
-  for (var i = 0; i < links.length; i++) {
-    var link = links[i];
-    try {
-      var response = await chrome.runtime.sendMessage({
-        action: 'analyzeUrl',
-        url: link.url
-      });
-      if (response && response.result) {
-        var verdict = response.result.verdict;
-        if (verdict === 'dangerous' || verdict === 'suspicious') {
-          showLinkWarning(link.element, verdict);
+  // ── SHOW BAR ─────────────────────────────────────────────────────────────
+  function showBar(humanMsg, domain) {
+    var existing = document.getElementById('nekoshield-bar');
+    if (existing) existing.remove();
+
+    var colors = {
+      safe:     { bg: '#00c96e', border: '#00a857', text: '#ffffff' },
+      low:      { bg: '#f0a500', border: '#c97f00', text: '#ffffff' },
+      medium:   { bg: '#e06000', border: '#b54a00', text: '#ffffff' },
+      high:     { bg: '#d42060', border: '#a8164a', text: '#ffffff' },
+      critical: { bg: '#8b0000', border: '#5a0000', text: '#ffffff' },
+      upgrade:  { bg: '#1a2340', border: '#00e5ff', text: '#e8eaf6' }
+    };
+
+    var c = colors[humanMsg.level] || colors.safe;
+
+    // Inject animation style once
+    if (!document.getElementById('neko-style')) {
+      var style = document.createElement('style');
+      style.id = 'neko-style';
+      style.textContent = '@keyframes nekoIn{from{transform:translateY(-100%);opacity:0}to{transform:translateY(0);opacity:1}}';
+      document.head.appendChild(style);
+    }
+
+    var bar = document.createElement('div');
+    bar.id = 'nekoshield-bar';
+    bar.setAttribute('style', [
+      'position:fixed', 'top:0', 'left:0', 'right:0', 'z-index:2147483647',
+      'background:' + c.bg, 'border-bottom:3px solid ' + c.border,
+      'color:' + c.text,
+      'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',
+      'padding:10px 16px', 'display:flex', 'align-items:center',
+      'justify-content:space-between', 'box-shadow:0 4px 20px rgba(0,0,0,0.35)',
+      'animation:nekoIn 0.35s ease'
+    ].join(';'));
+
+    var domainLabel = domain ? '<span style="font-size:0.68rem;opacity:0.7;display:block;margin-top:1px;">' + domain + '</span>' : '';
+
+    bar.innerHTML =
+      '<div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">' +
+        '<span style="font-size:1.4rem;flex-shrink:0;">' + humanMsg.emoji + '</span>' +
+        '<div style="min-width:0;">' +
+          '<div style="font-weight:800;font-size:0.87rem;letter-spacing:-0.2px;">' + humanMsg.title + '</div>' +
+          '<div style="font-size:0.76rem;opacity:0.9;margin-top:2px;line-height:1.4;">' + humanMsg.message + '</div>' +
+          domainLabel +
+        '</div>' +
+      '</div>' +
+      '<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;margin-left:12px;">' +
+        '<span style="font-size:0.68rem;opacity:0.6;white-space:nowrap;">🛡️ NekoShield</span>' +
+        '<button id="neko-close" style="background:rgba(0,0,0,0.2);border:none;color:inherit;width:26px;height:26px;border-radius:50%;cursor:pointer;font-size:0.85rem;line-height:1;flex-shrink:0;">✕</button>' +
+      '</div>';
+
+    document.body.insertBefore(bar, document.body.firstChild);
+
+    document.getElementById('neko-close').addEventListener('click', function() {
+      bar.style.animation = 'none';
+      bar.style.transition = 'opacity 0.2s';
+      bar.style.opacity = '0';
+      setTimeout(function() { bar.remove(); }, 200);
+    });
+
+    // Auto-hide safe bar after 4 seconds
+    if (humanMsg.level === 'safe') {
+      setTimeout(function() {
+        if (bar.parentNode) {
+          bar.style.transition = 'opacity 0.5s';
+          bar.style.opacity = '0';
+          setTimeout(function() { bar.remove(); }, 500);
         }
-      }
-    } catch(e) {}
-    await new Promise(r => setTimeout(r, 300));
+      }, 4000);
+    }
   }
-}
 
-chrome.runtime.sendMessage({ action: 'getUser' }, function(response) {
-  if (response && response.email) {
-    scanCurrentPage();
-  }
-});
+  // ── MAIN ─────────────────────────────────────────────────────────────────
+  chrome.runtime.sendMessage({ action: 'getUser' }, function(response) {
+    if (!response || !response.email) return;
 
-var observer = new MutationObserver(function(mutations) {
-  mutations.forEach(function(mutation) {
-    mutation.addedNodes.forEach(function(node) {
-      if (node.querySelectorAll) {
-        var newLinks = node.querySelectorAll('a[href]');
-        newLinks.forEach(function(link) {
-          var href = link.href;
-          if (href && href.startsWith('http') && !href.includes(window.location.hostname)) {
-            chrome.runtime.sendMessage({
-              action: 'analyzeUrl',
-              url: href
-            }, function(response) {
-              if (response && response.result) {
-                var verdict = response.result.verdict;
-                if (verdict === 'dangerous' || verdict === 'suspicious') {
-                  showLinkWarning(link, verdict);
-                }
-              }
-            });
-          }
-        });
+    var pageData = extractPageData();
+    var localAnalysis = analyzeManipulation(pageData);
+    var domain = window.location.hostname.replace('www.', '');
+
+    chrome.runtime.sendMessage({
+      action: 'analyzePageContent',
+      url: pageData.url,
+      pageText: pageData.text,
+      localScore: localAnalysis.score,
+      patterns: localAnalysis.patterns,
+      hasPasswordAndCard: pageData.hasPasswordAndCard,
+      hasCountdown: pageData.hasCountdown
+    }, function(resp) {
+      if (!resp) return;
+
+      // Upgrade needed — free pages exhausted
+      if (resp.upgradeNeeded) {
+        showBar({
+          level: 'upgrade',
+          emoji: '🛡️',
+          title: "Your free protection has run out.",
+          message: "Get full page analysis for just $1 — 50 pages protected. Visit nekoshield.com to upgrade."
+        }, domain);
+        return;
       }
+
+      // Combine local score with URL verdict from backend
+      var urlScore = resp.verdict === 'dangerous' ? 85 : resp.verdict === 'suspicious' ? 50 : 0;
+      var finalScore = Math.max(localAnalysis.score, urlScore, resp.aiScore || 0);
+
+      var humanMsg = getHumanMessage(finalScore);
+
+      // AI gave us a better human message — use it
+      if (resp.aiHumanMessage) {
+        humanMsg.message = resp.aiHumanMessage;
+      }
+
+      showBar(humanMsg, domain);
     });
   });
-});
 
-if (document.body) {
-  observer.observe(document.body, { childList: true, subtree: true });
-} else {
-  document.addEventListener('DOMContentLoaded', function() {
-    observer.observe(document.body, { childList: true, subtree: true });
-  });
-}
+})();
