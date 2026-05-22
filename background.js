@@ -225,7 +225,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
           chrome.notifications.create('nekoshield-' + Date.now(), {
             type: 'basic', iconUrl: 'icons/icon128.png',
             title: '🚨 NekoShield — Hold on!',
-            message: 'This page is using tricks to pressure you. Don't click anything yet.'
+            message: "This page is using tricks to pressure you. Don't click anything yet."
           });
         }
       });
