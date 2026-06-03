@@ -202,13 +202,14 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
               urlScore: urlScore,
               aiScore: aiResult.riskScore || 0,
               aiHumanMessage: aiResult.humanMessage || null,
-              upgradeNeeded: false
+              upgradeNeeded: false,
+              isPaid: isPaid
             });
           }).catch(function() {
             sendResponse({ verdict: verdict, urlScore: urlScore, upgradeNeeded: false });
           });
         } else {
-          sendResponse({ verdict: verdict, urlScore: urlScore, upgradeNeeded: false });
+          sendResponse({ verdict: verdict, urlScore: urlScore, upgradeNeeded: false, isPaid: isPaid });
         }
 
         // Update counters
